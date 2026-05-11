@@ -1,0 +1,16 @@
+[Unit]
+Description=Dinoqode service
+After=network.target node-sonos-http-api.service
+StartLimitIntervalSec=0
+
+[Service]
+User=lukas
+ExecStart=/usr/bin/python3 -u qrplay.py --hostname localhost --default-device Keuken --default-volume 25
+WorkingDirectory=/home/lukas/Developer/dinoqode
+StandardOutput=append:/home/lukas/Developer/logs/dinoqode.log
+StandardError=append:/home/lukas/Developer/logs/dinoqode.log
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,56 @@
+#########################
+# Apple Music
+# Format: Artist | Album Title
+# (album ID and artwork are fetched automatically from iTunes)
+# Add the ID if you want to pin a specific version: Artist | Title | iTunesID
+# https://itunes.apple.com/lookup?id=ALBUM_ID  <- to find an ID
+#########################
+
+Kinderen Voor Kinderen | 42 - Worden Wat Je Wil
+Kinderen Voor Kinderen | 43 - Gi-Ga-Groen
+Kinderen Voor Kinderen | 44 - Bij Mij Thuis
+Kinderen Voor Kinderen | 45 - Lekker Eigenwijs
+Kinderen Voor Kinderen | 46 - Vol Avontuur | 1839480309
+Nina Kinert | Pets & Friends
+Phoebe Bridgers | Stranger in the Alps
+Ella Langley | Dandelion
+Gorillaz | Gorillaz
+Shpongle | Tales of the Inexpressible
+Nancy Sinatra & Lee Hazlewood | Nancy & Lee | 1616561102
+Janelle Monáe | Dirty Computer
+Red Hot Chili Peppers | Californication
+Lily Allen | West End Girl
+My Robot Friend | Hot Action!
+Dolly Parton | Bargain Store
+David Byrne & Fatboy Slim | Here Lies Love
+Björk | Debut
+AlunaGeorge | Body Music
+Rangleklods | Beekeeper
+Pink Floyd | The Dark Side of the Moon
+Joni Mitchell | Blue
+The Beatles | Revolver
+Nirvana | Nevermind
+Fleetwood Mac | Rumours
+The Velvet Underground | The Velvet Underground and Nico | 1440851613
+
+#########################
+# Sonos Favorites
+#########################
+favorite:Ontbijt|Ontbijt|https://img.icons8.com/ios/540/playlist.png
+favorite:Jonas & Micha's Jam|Jonas & Micha's Jam|https://img.icons8.com/ios/540/playlist.png
+
+#########################
+# Apple Music Playlists
+# Short format: Name | ID  (the part after pl.u- in the share URL)
+# Full URL also works: Name | https://music.apple.com/.../pl.u-ID
+#########################
+Cowboy | 9N9L24eF7Z9Am8
+Psilocybine | 76oNlB7INR51eg
+GOAT | d2b05g0TB70yJZ
+
+#########################
+# Room Commands
+#########################
+# cmd:room|Slaapkamer|https://img.icons8.com/ios/540/mac-client.png
+# cmd:room|Woonkamer|https://img.icons8.com/ios/540/living-room.png
+# cmd:room|Keuken|https://img.icons8.com/ios/540/dining-room.png

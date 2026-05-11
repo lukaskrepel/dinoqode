@@ -24,38 +24,62 @@
 
 
 import argparse
+import http.client
 import json
 import os
+import re
 import subprocess
-from time import sleep
+import traceback
 import urllib.parse
 import urllib.request
-import http.client
-import re
-import traceback
+from time import sleep
 
 try:
     use_blinkt = True
-    print('use_blinkt = True')
+    print("use_blinkt = True")
     import blinkt
+
     blinkt.set_clear_on_exit(True)
 except ImportError:
     use_blinkt = False
-    print('use_blinkt = False')
+    print("use_blinkt = False")
 
 
 # Parse the command line arguments
-arg_parser = argparse.ArgumentParser(description='Translates QR codes detected by a camera into Sonos® commands.')
-arg_parser.add_argument('--default-volume', default='25', help='the volume of your default device')
-arg_parser.add_argument('--default-device', default='Büro', help='the name of your default device/room')
-arg_parser.add_argument('--hostname', default='0.0.0.0', help='the hostname or IP address of the machine running `node-sonos-http-api`')
-arg_parser.add_argument('--skip-load', action='store_true', help='skip loading of the music library (useful if the server has already loaded it)', default=True)
-arg_parser.add_argument('--debug-file', help='read commands from a file instead of launching scanner')
-arg_parser.add_argument('--speak-welcome', action='store_true', help='should dinoqode speak welcome messages on startup', default=False)
+arg_parser = argparse.ArgumentParser(
+    description="Translates QR codes detected by a camera into Sonos® commands."
+)
+arg_parser.add_argument(
+    "--default-volume", default="25", help="the volume of your default device"
+)
+arg_parser.add_argument(
+    "--default-device", default="Office", help="the name of your default device/room"
+)
+arg_parser.add_argument(
+    "--hostname",
+    default="0.0.0.0",
+    help="the hostname or IP address of the machine running `node-sonos-http-api`",
+)
+arg_parser.add_argument(
+    "--skip-load",
+    action="store_true",
+    help="skip loading of the music library (useful if the server has already loaded it)",
+    default=True,
+)
+arg_parser.add_argument(
+    "--debug-file", help="read commands from a file instead of launching scanner"
+)
+arg_parser.add_argument(
+    "--speak-welcome",
+    action="store_true",
+    help="should dinoqode speak welcome messages on startup",
+    default=False,
+)
 args = arg_parser.parse_args()
 print(args)
 
 current_device = args.default_device
+
 
 # Call http request
 def perform_request(url):
@@ -64,11 +88,11 @@ def perform_request(url):
     print(url)
     try:
         response = urllib.request.urlopen(url)
-        result = response.read().decode('utf-8')
+        result = response.read().decode("utf-8")
         parsed_json = json.loads(result)
 
         try:
-            if (parsed_json['status'] == 'error'):
+            if parsed_json["status"] == "error":
                 last_qrcode_success = False
             else:
                 last_qrcode_success = True
@@ -78,56 +102,79 @@ def perform_request(url):
 
         print(result)
     except (IOError, http.client.HTTPException):
-        print('Error')
+        print("Error")
         last_qrcode_success = False
 
 
 # Perform global request (run on all rooms)
 def perform_global_request(path):
-    perform_request(base_url + '/' + path)
+    perform_request(base_url + "/" + path)
+
 
 # Perform room specific request
 def perform_room_request(path, room):
     qdevice = urllib.parse.quote(room)
-    perform_request(base_url + '/' + qdevice + '/' + path)
+    perform_request(base_url + "/" + qdevice + "/" + path)
+
 
 # Switch to specific room and save the room in last-device file
 def switch_to_room(room):
     global current_device
     global last_qrcode
 
-    last_qrcode = ''
+    last_qrcode = ""
 
-    perform_room_request('pause', current_device)
-    perform_room_request('volume/' + args.default_volume, room)
+    perform_room_request("pause", current_device)
+    perform_room_request("volume/" + args.default_volume, room)
     current_device = room
     with open(".last-device", "w") as device_file:
         device_file.write(current_device)
+
 
 # Perform speak command
 def speak(phrase, room=None):
     if room is None:
         room = current_device
 
-    print('SPEAKING: \'{0}\''.format(phrase))
-    perform_room_request('say/' + urllib.parse.quote(phrase) + '/de', room)
+    print("SPEAKING: '{0}'".format(phrase))
+    perform_room_request("say/" + urllib.parse.quote(phrase) + "/de", room)
+
 
 # Flash led lights (onboard or Blinkt! leds)
 def blink_led(type):
     if use_blinkt == True:
         # Causes the Blinkt! led bar to blink
-        if type == 'pulse-green':
-            blinkt_subp = subprocess.Popen(["/usr/bin/python", os.path.join(current_dir, "blinkt_led_pulse.py"), "--brightness", "1", "--color", "0,128,0"])
+        if type == "pulse-green":
+            blinkt_subp = subprocess.Popen(
+                [
+                    "/usr/bin/python",
+                    os.path.join(current_dir, "blinkt_led_pulse.py"),
+                    "--brightness",
+                    "1",
+                    "--color",
+                    "0,128,0",
+                ]
+            )
             sleep(8)
-        elif type == 'pulse-red':
-            blinkt_subp = subprocess.Popen(["/usr/bin/python", os.path.join(current_dir, "blinkt_led_pulse.py"), "--brightness", "1", "--color", "255,0,0"])
+        elif type == "pulse-red":
+            blinkt_subp = subprocess.Popen(
+                [
+                    "/usr/bin/python",
+                    os.path.join(current_dir, "blinkt_led_pulse.py"),
+                    "--brightness",
+                    "1",
+                    "--color",
+                    "255,0,0",
+                ]
+            )
             sleep(8)
-        elif type == 'rainbow':
-            blinkt_subp = subprocess.Popen(["/usr/bin/python", os.path.join(current_dir, "blinkt_led_rainbow.py")])
+        elif type == "rainbow":
+            blinkt_subp = subprocess.Popen(
+                ["/usr/bin/python", os.path.join(current_dir, "blinkt_led_rainbow.py")]
+            )
             sleep(8)
 
-        print('blink_led: ' + type);
-
+        print("blink_led: " + type)
         blinkt_subp.kill()
         sleep(0.0001)
         blinkt.clear()
@@ -135,6 +182,7 @@ def blink_led(type):
         sleep(0.0001)
         blinkt.clear()
         blinkt.show()
+
 
 # Handling QR command
 # If QR code is defined the Blinkt! led bar is flashing green otherwise red
@@ -146,22 +194,22 @@ def handle_command(qrcode):
 
     last_qrcode_success = True
 
-    print('HANDLING COMMAND: ' + qrcode)
+    print("HANDLING COMMAND: " + qrcode)
 
-    if qrcode == 'cmd:playpause':
-        perform_room_request('playpause', room)
+    if qrcode == "cmd:playpause":
+        perform_room_request("playpause", room)
         phrase = None
 
-    elif qrcode == 'cmd:next':
-        perform_room_request('next', room)
-        perform_room_request('play', room)
+    elif qrcode == "cmd:next":
+        perform_room_request("next", room)
+        perform_room_request("play", room)
         phrase = None
 
-    elif qrcode == 'cmd:previous':
-        perform_room_request('previous', room)
+    elif qrcode == "cmd:previous":
+        perform_room_request("previous", room)
         phrase = None
 
-    elif qrcode == 'cmd:queue':
+    elif qrcode == "cmd:queue":
         current_playmode = Mode.BUILD_QUEUE
         phrase = None
         room = current_device
@@ -169,16 +217,16 @@ def handle_command(qrcode):
         with open(".last-playmode", "w") as playmode_file:
             playmode_file.write(current_playmode)
 
-    elif qrcode == 'cmd:unqueue':
+    elif qrcode == "cmd:unqueue":
         current_playmode = Mode.PLAY_AND_CLEAR
         phrase = None
         room = current_device
-        perform_room_request('clearqueue', room)
+        perform_room_request("clearqueue", room)
 
         with open(".last-playmode", "w") as playmode_file:
             playmode_file.write(current_playmode)
 
-    elif qrcode == 'cmd:playqueue':
+    elif qrcode == "cmd:playqueue":
         current_playmode = Mode.PLAY_AND_QUEUE
         phrase = None
         room = current_device
@@ -186,19 +234,19 @@ def handle_command(qrcode):
         with open(".last-playmode", "w") as playmode_file:
             playmode_file.write(current_playmode)
 
-    elif qrcode.startswith('cmd:room'):
-        room = re.split('\\|', qrcode)[1]
+    elif qrcode.startswith("cmd:room"):
+        room = re.split("\\|", qrcode)[1]
         switch_to_room(room)
         phrase = None
 
-    elif qrcode.startswith('cmd:say'):
-        split = re.split('\\|', qrcode)
+    elif qrcode.startswith("cmd:say"):
+        split = re.split("\\|", qrcode)
         room = split[1]
         phrase = split[2]
 
-    elif len(qrcode.split(':')) == 3:
-        split = re.split('\\:', qrcode)
-        perform_room_request(split[1] + '/' + split[2], room)
+    elif len(qrcode.split(":")) == 3:
+        split = re.split("\\:", qrcode)
+        perform_room_request(split[1] + "/" + split[2], room)
         phrase = None
     else:
         last_qrcode_success = False
@@ -208,86 +256,120 @@ def handle_command(qrcode):
 
 
 def handle_library_item(qrcode):
-    if not qrcode.startswith('lib:'):
+    if not qrcode.startswith("lib:"):
         return
 
-    print('PLAYING FROM LIBRARY: ' + qrcode)
+    print("PLAYING FROM LIBRARY: " + qrcode)
 
-    search = re.split('\\|', qrcode)[1]
+    search = re.split("\\|", qrcode)[1]
 
-    if qrcode.startswith('lib:album'):
-        action = 'album'
+    if qrcode.startswith("lib:album"):
+        action = "album"
     else:
-        action = 'song'
+        action = "song"
 
-    perform_room_request('musicsearch/library/{0}/{1}'.format(action, urllib.parse.quote(search)), current_device)
+    perform_room_request(
+        "musicsearch/library/{0}/{1}".format(action, urllib.parse.quote(search)),
+        current_device,
+    )
 
 
 def handle_spotify_item(qrcode):
-    print('PLAYING FROM SPOTIFY: ' + qrcode)
+    print("PLAYING FROM SPOTIFY: " + qrcode)
 
     if current_playmode == Mode.BUILD_QUEUE:
-        action = 'queue'
+        action = "queue"
     else:
-        action = 'now'
+        action = "now"
 
-    perform_room_request('spotify/{0}/{1}'.format(action, qrcode.replace('spotify:', '')), current_device)
+    perform_room_request("shuffle/off", current_device)
+    perform_room_request(
+        "spotify/{0}/{1}".format(action, qrcode.replace("spotify:", "")), current_device
+    )
+
 
 def handle_applemusic_item(qrcode):
-    print('PLAYING FROM APPLE MUSIC: ' + qrcode)
+    print("PLAYING FROM APPLE MUSIC: " + qrcode)
 
     if current_playmode == Mode.BUILD_QUEUE:
-        action = 'queue'
+        action = "queue"
     else:
-        action = 'now'
+        action = "now"
 
-    perform_room_request('applemusic/{0}/{1}'.format(action, qrcode.replace('applemusic:', '')), current_device)
+    # Playlists shuffle randomly; albums play in track order.
+    if ":playlist:" in qrcode:
+        perform_room_request("shuffle/on", current_device)
+    else:
+        perform_room_request("shuffle/off", current_device)
+    perform_room_request(
+        "applemusic/{0}/{1}".format(action, qrcode.replace("applemusic:", "")),
+        current_device,
+    )
 
 
 def handle_amazonmusic_item(qrcode):
-    print('PLAYING FROM AMAZON MUSIC: ' + qrcode)
+    print("PLAYING FROM AMAZON MUSIC: " + qrcode)
 
     if current_playmode == Mode.BUILD_QUEUE:
-        action = 'queue'
+        action = "queue"
     else:
-        action = 'now'
+        action = "now"
 
-    perform_room_request('amazonmusic/{0}/{1}'.format(action, qrcode.replace('amazonmusic:', '')), current_device)
+    perform_room_request("shuffle/off", current_device)
+    perform_room_request(
+        "amazonmusic/{0}/{1}".format(action, qrcode.replace("amazonmusic:", "")),
+        current_device,
+    )
+
 
 def handle_aldilife_item(qrcode):
-    print('PLAYING FROM ALDI LIFE (NAPSTER): ' + qrcode)
+    print("PLAYING FROM ALDI LIFE (NAPSTER): " + qrcode)
 
     if current_playmode == Mode.BUILD_QUEUE:
-        action = 'queue'
+        action = "queue"
     else:
-        action = 'now'
+        action = "now"
 
-    perform_room_request('aldilifemusic/{0}/{1}'.format(action, qrcode.replace('aldilife:', '')), current_device)
+    perform_room_request("shuffle/off", current_device)
+    perform_room_request(
+        "aldilifemusic/{0}/{1}".format(action, qrcode.replace("aldilife:", "")),
+        current_device,
+    )
+
 
 def handle_napster_item(qrcode):
-    print('PLAYING FROM NAPSTER: ' + qrcode)
+    print("PLAYING FROM NAPSTER: " + qrcode)
 
     if current_playmode == Mode.BUILD_QUEUE:
-        action = 'queue'
+        action = "queue"
     else:
-        action = 'now'
+        action = "now"
 
-    perform_room_request('napster/{0}/{1}'.format(action, qrcode.replace('napster:', '')), current_device)
+    perform_room_request("shuffle/off", current_device)
+    perform_room_request(
+        "napster/{0}/{1}".format(action, qrcode.replace("napster:", "")), current_device
+    )
+
 
 def handle_favorite_playlist_item(qrcode):
-    print('PLAYING FROM SONOS FAVORITE/PLAYLIST: ' + qrcode)
+    print("PLAYING FROM SONOS FAVORITE/PLAYLIST: " + qrcode)
 
-    split = re.split('\\:', qrcode)
+    split = re.split("\\:", qrcode)
 
-    perform_room_request('{0}/{1}'.format(split[0], urllib.parse.quote(split[1])), current_device)
+    perform_room_request("shuffle/on", current_device)
+    perform_room_request(
+        "{0}/{1}".format(split[0], urllib.parse.quote(split[1])), current_device
+    )
 
 
 def handle_tunein_item(qrcode):
-    print('PLAYING FROM TUNEIN: ' + qrcode)
+    print("PLAYING FROM TUNEIN: " + qrcode)
 
-    split = re.split('\\:', qrcode)
+    split = re.split("\\:", qrcode)
 
-    perform_room_request('{0}/{1}/{2}'.format(split[0], split[1], split[2]), current_device)
+    perform_room_request(
+        "{0}/{1}/{2}".format(split[0], split[1], split[2]), current_device
+    )
 
 
 def handle_qrcode(qrcode):
@@ -296,52 +378,52 @@ def handle_qrcode(qrcode):
 
     # Ignore redundant codes, except for commands like "playpause", where you might
     # want to perform it multiple times
-    if qrcode == last_qrcode and not qrcode.startswith('cmd:'):
-        print('IGNORING REDUNDANT QRCODE: ' + qrcode)
+    if qrcode == last_qrcode and not qrcode.startswith("cmd:"):
+        print("IGNORING REDUNDANT QRCODE: " + qrcode)
         return
 
-    print('HANDLING QRCODE: ' + qrcode)
+    print("HANDLING QRCODE: " + qrcode)
 
-    if qrcode.startswith('cmd:'):
+    if qrcode.startswith("cmd:"):
         handle_command(qrcode)
-    elif qrcode.startswith('applemusic:'):
-        if current_playmode == Mode.PLAY_AND_CLEAR:
-            perform_room_request('clearqueue', current_device)
+    elif qrcode.startswith("applemusic:"):
+        if current_playmode != Mode.BUILD_QUEUE:
+            perform_room_request("clearqueue", current_device)
 
         handle_applemusic_item(qrcode)
-    elif qrcode.startswith('amazonmusic:'):
-        if current_playmode == Mode.PLAY_AND_CLEAR:
-            perform_room_request('clearqueue', current_device)
+    elif qrcode.startswith("amazonmusic:"):
+        if current_playmode != Mode.BUILD_QUEUE:
+            perform_room_request("clearqueue", current_device)
 
         handle_amazonmusic_item(qrcode)
-    elif qrcode.startswith('spotify:'):
-        if current_playmode == Mode.PLAY_AND_CLEAR:
-            perform_room_request('clearqueue', current_device)
+    elif qrcode.startswith("spotify:"):
+        if current_playmode != Mode.BUILD_QUEUE:
+            perform_room_request("clearqueue", current_device)
 
         handle_spotify_item(qrcode)
-    elif qrcode.startswith('napster:'):
-        if current_playmode == Mode.PLAY_AND_CLEAR:
-            perform_room_request('clearqueue', current_device)
+    elif qrcode.startswith("napster:"):
+        if current_playmode != Mode.BUILD_QUEUE:
+            perform_room_request("clearqueue", current_device)
 
         handle_napster_item(qrcode)
-    elif qrcode.startswith('aldilife:'):
-        if current_playmode == Mode.PLAY_AND_CLEAR:
-            perform_room_request('clearqueue', current_device)
+    elif qrcode.startswith("aldilife:"):
+        if current_playmode != Mode.BUILD_QUEUE:
+            perform_room_request("clearqueue", current_device)
 
         handle_aldilife_item(qrcode)
-    elif qrcode.startswith('favorite:') or qrcode.startswith('playlist:'):
-        if current_playmode == Mode.PLAY_AND_CLEAR:
-            perform_room_request('clearqueue', current_device)
+    elif qrcode.startswith("favorite:") or qrcode.startswith("playlist:"):
+        if current_playmode != Mode.BUILD_QUEUE:
+            perform_room_request("clearqueue", current_device)
 
         handle_favorite_playlist_item(qrcode)
-    elif qrcode.startswith('tunein:'):
-        if current_playmode == Mode.PLAY_AND_CLEAR:
-            perform_room_request('clearqueue', current_device)
+    elif qrcode.startswith("tunein:"):
+        if current_playmode != Mode.BUILD_QUEUE:
+            perform_room_request("clearqueue", current_device)
 
         handle_tunein_item(qrcode)
-    elif qrcode.startswith('lib'):
-        if current_playmode == Mode.PLAY_AND_CLEAR:
-            perform_room_request('clearqueue', current_device)
+    elif qrcode.startswith("lib"):
+        if current_playmode != Mode.BUILD_QUEUE:
+            perform_room_request("clearqueue", current_device)
 
         handle_library_item(qrcode)
     else:
@@ -349,10 +431,10 @@ def handle_qrcode(qrcode):
 
     if last_qrcode_success:
         last_qrcode = qrcode
-        blink_led('pulse-green')
+        blink_led("pulse-green")
     else:
-        last_qrcode = ''
-        blink_led('pulse-red')
+        last_qrcode = ""
+        blink_led("pulse-red")
 
 
 # Monitor the output of the QR code scanner.
@@ -360,12 +442,22 @@ def start_scan():
     while True:
         data = p.stdout.readline()
 
-        if data:
-            data = data.decode('utf-8').encode('sjis').decode('utf-8')
+        # Empty read means the subprocess has exited — stop the loop so
+        # qrplay.py can exit cleanly and be restarted by systemd.
+        if not data:
+            print("Scanner process exited, stopping.")
+            break
 
-        qrcode = str(data)[8:]
+        # Decode safely; ignore any bytes that aren't valid UTF-8.
+        line = data.decode("utf-8", errors="replace").rstrip()
+
+        # Only act on real QR-Code lines; skip camera error/status messages.
+        if not line.startswith("QR-Code:"):
+            print("[scanner] " + line)  # still visible in the log
+            continue
+
+        qrcode = line[len("QR-Code:") :]
         if qrcode:
-            qrcode = qrcode.rstrip()
             handle_qrcode(qrcode)
 
 
@@ -389,18 +481,19 @@ def read_debug_script():
 # Startup program
 # #############################################################################
 class Mode:
-    PLAY_AND_CLEAR = 'play_and_clear'
-    BUILD_QUEUE = 'build_queue'
-    PLAY_AND_QUEUE = 'play_and_queue'
+    PLAY_AND_CLEAR = "play_and_clear"
+    BUILD_QUEUE = "build_queue"
+    PLAY_AND_QUEUE = "play_and_queue"
+
 
 # Load the most recently used device, if available, otherwise fall back on the `default-device` argument
 try:
-    with open('.last-device', 'r') as device_file:
-        current_device = device_file.read().replace('\n', '')
-        print('Defaulting to last used room: ' + current_device)
+    with open(".last-device", "r") as device_file:
+        current_device = device_file.read().replace("\n", "")
+        print("Defaulting to last used room: " + current_device)
 except:
     current_device = args.default_device
-    print('Initial room: ' + current_device)
+    print("Initial room: " + current_device)
 
 # Load the last save play mode, if available, otherwise fall back on the `PLAY_AND_QUEUE` argument
 # PLAY_AND_QUEUE = Play current album/song and don't clear the queue
@@ -408,40 +501,39 @@ except:
 # BUILD_QUEUE = Add current album/song to the queue
 
 try:
-    with open('.last-playmode', 'r') as playmode_file:
-        current_playmode = playmode_file.read().replace('\n', '')
-        print('Defaulting to last used play mode: ' + current_playmode)
+    with open(".last-playmode", "r") as playmode_file:
+        current_playmode = playmode_file.read().replace("\n", "")
+        print("Defaulting to last used play mode: " + current_playmode)
 except:
     current_playmode = Mode.PLAY_AND_QUEUE
-    print('Play mode: ' + current_playmode)
+    print("Play mode: " + current_playmode)
 
 # Keep track of the last-seen code
-last_qrcode = ''
+last_qrcode = ""
 last_qrcode_success = True
 
-base_url = 'http://' + args.hostname + ':5005'
+base_url = "http://" + args.hostname + ":5005"
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-perform_room_request('pause', current_device)
-perform_room_request('volume/' + args.default_volume, current_device)
+perform_room_request("volume/" + args.default_volume, current_device)
 
 if args.speak_welcome:
-    speak('Hallo, ich bin dinoqode.')
+    speak("Hello, I am dinoqode.")
 
 if not args.skip_load:
     # Preload library on startup (it takes a few seconds to prepare the cache)
-    print('Indexing the library...')
+    print("Indexing the library...")
     if args.speak_welcome:
-        speak('Musik Bibliothek indizieren')
+        speak("Indexing music library")
 
-    perform_room_request('musicsearch/library/load', current_device)
-    print('Indexing complete!')
+    perform_room_request("musicsearch/library/load", current_device)
+    print("Indexing complete!")
 
     if args.speak_welcome:
-        speak('Jetzt bin ich bereit!')
+        speak("Now I am ready!")
 
 if args.speak_welcome:
-    speak('Zeig mir eine Karte!')
+    speak("Show me a card!")
 
 
 if args.debug_file:
@@ -449,16 +541,19 @@ if args.debug_file:
     read_debug_script()
 else:
     # Start the QR code reader
-    p = subprocess.Popen('/usr/bin/zbarcam --prescale=500x500 --nodisplay', shell=True, stdout=subprocess.PIPE)
+    p = subprocess.Popen(
+        ["python3", os.path.join(current_dir, "zbarcam_wrapper.py")],
+        stdout=subprocess.PIPE,
+    )
 
     try:
-        blink_led('rainbow')
+        blink_led("rainbow")
         start_scan()
     except KeyboardInterrupt:
-        print('Stopping scanner...')
-        blink_led('pulse-red')
+        print("Stopping scanner...")
+        blink_led("pulse-red")
     finally:
-        print('Closed')
+        print("Closed")
         if use_blinkt == True:
             blinkt.clear()
             blinkt.show()

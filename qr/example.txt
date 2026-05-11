@@ -273,40 +273,39 @@
 #########################
 # Common Commands
 #########################
-# cmd:playpause|Abspielen / Pausieren|https://img.icons8.com/ios/540/play-button-circled.png
-# cmd:next|Nächsten Titel abspielen|https://img.icons8.com/ios/540/end.png
-# cmd:previous|Vorherigen Titel abspielen|https://img.icons8.com/ios/540/skip-to-start.png
-# cmd:unqueue|Liste ersetzen|https://img.icons8.com/540/delete-property.png
-# cmd:queue|Am Listenende einfügen|https://img.icons8.com/ios/540/add-property.png
-# cmd:playqueue|Jetzt abspielen|https://img.icons8.com/ios/540/play-property.png
+# cmd:playpause|Play / Pause|https://img.icons8.com/ios/540/play-button-circled.png
+# cmd:next|Play next track|https://img.icons8.com/ios/540/end.png
+# cmd:previous|Play previous track|https://img.icons8.com/ios/540/skip-to-start.png
+# cmd:unqueue|Replace queue|https://img.icons8.com/540/delete-property.png
+# cmd:queue|Add to end of queue|https://img.icons8.com/ios/540/add-property.png
+# cmd:playqueue|Play now|https://img.icons8.com/ios/540/play-property.png
 
 #########################
 # Toggle Commands
 #########################
-# cmd:repeat:all|Alle wiederholen|https://img.icons8.com/ios/540/repeat.png
-# cmd:repeat:one|Titel wiederholen|https://img.icons8.com/ios/540/repeat-one.png
-# cmd:repeat:none|Wiederholen aus|https://img.icons8.com/ios/540/right.png
-# cmd:shuffle:on|Zufällige Wiedergabe einschalten|https://img.icons8.com/ios/540/shuffle.png
-# cmd:shuffle:off|Zufällige Wiedergabe ausschalten|https://img.icons8.com/ios/540/personal-video-recorder-menu.png
-# cmd:mute:|Ton aus|https://img.icons8.com/ios/540/no-audio.png
-# cmd:unmute:|Ton an|https://img.icons8.com/ios/540/high-volume.png
-# cmd:volume:+5|Lautstärke +5|https://img.icons8.com/ios/540/speaker.png
-# cmd:volume:-5|Lautstärke -5|https://img.icons8.com/ios/540/low-volume.png
+# cmd:repeat:all|Repeat all|https://img.icons8.com/ios/540/repeat.png
+# cmd:repeat:one|Repeat track|https://img.icons8.com/ios/540/repeat-one.png
+# cmd:repeat:none|Repeat off|https://img.icons8.com/ios/540/right.png
+# cmd:shuffle:on|Shuffle on|https://img.icons8.com/ios/540/shuffle.png
+# cmd:shuffle:off|Shuffle off|https://img.icons8.com/ios/540/personal-video-recorder-menu.png
+# cmd:mute:|Mute|https://img.icons8.com/ios/540/no-audio.png
+# cmd:unmute:|Unmute|https://img.icons8.com/ios/540/high-volume.png
+# cmd:volume:+5|Volume +5|https://img.icons8.com/ios/540/speaker.png
+# cmd:volume:-5|Volume -5|https://img.icons8.com/ios/540/low-volume.png
 
 #########################
 # Room Commands
 #########################
-# cmd:room|Büro|https://img.icons8.com/ios/540/mac-client.png
-# cmd:room|Wohnzimmer|https://img.icons8.com/ios/540/living-room.png
-# cmd:room|Küche|https://png.icons8.com/ios/540//dining-room.png
-# cmd:room|Niklas Zimmer|https://img.icons8.com/ios/540/boy.png
-# cmd:room|Bad OG|https://img.icons8.com/ios/540/bath.png
-# cmd:room|Bad EG|https://img.icons8.com/ios/540/shower.png
-# cmd:room|Terasse|https://img.icons8.com/ios/540/house-with-a-garden.png
+# cmd:room|Office|https://img.icons8.com/ios/540/mac-client.png
+# cmd:room|Living Room|https://img.icons8.com/ios/540/living-room.png
+# cmd:room|Kitchen|https://img.icons8.com/ios/540/dining-room.png
+# cmd:room|Niklas Room|https://img.icons8.com/ios/540/boy.png
+# cmd:room|Bathroom Upstairs|https://img.icons8.com/ios/540/bath.png
+# cmd:room|Bathroom Downstairs|https://img.icons8.com/ios/540/shower.png
+# cmd:room|Terrace|https://img.icons8.com/ios/540/house-with-a-garden.png
 
 #########################
 # Say Commands
 #########################
-# cmd:say|Küche|Mama spiel mit mir|https://img.icons8.com/ios/540/speech-bubble-with-dots.png
-# cmd:say|Küche|Komm bitte nach oben|https://img.icons8.com/ios/540/wakeup-hill-on-stairs.png
-
+# cmd:say|Kitchen|Come play with me|https://img.icons8.com/ios/540/speech-bubble-with-dots.png
+# cmd:say|Kitchen|Please come upstairs|https://img.icons8.com/ios/540/wakeup-hill-on-stairs.png
